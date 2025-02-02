@@ -38,8 +38,8 @@ export const fetchApiData = async (endpoint: string, data?: any) => {
   try {
     const isLoginEndpoint = endpoint === 'login';
     const response = isLoginEndpoint
-      ? await api.post(/api/v1/${endpoint}, data)
-      : await api.get(/api/v1/${endpoint});
+      ? await api.post(`/api/v1/${endpoint}`, data)
+      : await api.get(`/api/v1/${endpoint}`);
     return response.data;
   } catch (error) {
     console.error('API Error:', error);
