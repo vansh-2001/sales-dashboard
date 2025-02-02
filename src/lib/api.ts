@@ -1,7 +1,7 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
-const API_BASE_URL = 'https://3.111.196.92:8020';
+const API_BASE_URL = 'http://3.111.196.92:8020';
 const AUTH = {
   username: 'trial',
   password: 'assignment123'
@@ -12,25 +12,24 @@ const api = axios.create({
   auth: AUTH,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    // Add CORS headers
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    'Accept': 'application/json'
   },
   timeout: 10000, // 10 second timeout
-  // Add withCredentials for CORS
-  withCredentials: true
+  // Remove withCredentials as it's not needed for this API
+  withCredentials: false
 });
 
-// Configure retry behavior
+// Configure retry behavior with more specific conditions
 axiosRetry(api, {
   retries: 3,
-  retryDelay: axiosRetry.exponentialDelay,
+  retryDelay: (retryCount) => {
+    return retryCount * 1000; // Time interval between retries (1s, 2s, 3s)
+  },
   retryCondition: (error) => {
-    // Retry on network errors or 5xx server errors
+    // Retry on network errors or specific HTTP errors
     return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-           error.code === 'ECONNABORTED';
+           error.code === 'ECONNABORTED' ||
+           (error.response && error.response.status >= 500);
   }
 });
 
